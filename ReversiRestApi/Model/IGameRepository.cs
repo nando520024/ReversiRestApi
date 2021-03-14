@@ -12,5 +12,7 @@ namespace ReversiRestApi.Model
         public List<Game> GetGames();
 
         Game GetGame(string token);
+
+        void UpdateGame(Game game);
     }
 }

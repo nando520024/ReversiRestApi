@@ -2,10 +2,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ReversiRestApi.Data;
 using ReversiRestApi.Model;
 using System;
 using System.Collections.Generic;
@@ -27,11 +29,12 @@ namespace ReversiRestApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSingleton<IGameRepository, GameRepository>();
+            services.AddScoped<IGameRepository, GameAccessLayer>();
+            services.AddDbContext<Data.DbGameContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ReversiDbRestApi")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DbGameContext context)
         {
             if (env.IsDevelopment())
             {
@@ -48,6 +51,8 @@ namespace ReversiRestApi
             {
                 endpoints.MapControllers();
             });
+
+            SeedData.Initialize(context);
         }
     }
 }

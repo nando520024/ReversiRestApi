@@ -24,10 +24,10 @@ namespace ReversiRestApi.Controllers
         [HttpGet("game")]
         public ActionResult<IEnumerable<string>> GetGameDescriptionsFromGamesWithWaitingPlayer()
         {
-            // Get games that have not speler2token
+            // Get games that have no Player2Token
             var games = iRepository.GetGames().FindAll(x => x.Player2Token == null || x.Player2Token == "");
             
-            if (games != null)
+            if (games.Count != 0)
             {
                 List<string> descriptions = new List<string>();
 
@@ -96,20 +96,15 @@ namespace ReversiRestApi.Controllers
         {
             var result = iRepository.GetGame(tokenGame.Token);
 
-            if (result != null)
+            if (result != null && (result.Player1Token.Equals(tokenGame.PlayerToken) || result.Player2Token.Equals(tokenGame.PlayerToken)))
             {
-                if (result.Player1Token.Equals(tokenGame.PlayerToken) || result.Player2Token.Equals(tokenGame.PlayerToken))
+                if (result.DoMove(tokenGame.Row, tokenGame.Column))
                 {
-                    if (tokenGame.Pass)
-                    {
-                        return Ok(result.Pass());
-                    }
-                    else
-                    {
-                        return Ok(result.DoMove(tokenGame.Row, tokenGame.Column));
-                    }
+                    iRepository.UpdateGame(result);
+                    return Ok(true);
                 }
-                return NotFound();
+
+                return Ok(false);
             }
             return NotFound();
         }
@@ -124,7 +119,13 @@ namespace ReversiRestApi.Controllers
             {
                 if (result.Player1Token.Equals(passGame.PlayerToken) || result.Player2Token.Equals(passGame.PlayerToken))
                 {
-                        return Ok(result.Pass());
+                    if (result.Pass())
+                    {
+                        iRepository.UpdateGame(result);
+                        return Ok(true);
+                    }
+
+                    return Ok(false);
                 }
                 return NotFound();
             }
@@ -167,7 +168,7 @@ namespace ReversiRestApi.Controllers
                 Player1Token = game.Player1Token,
                 Player2Token = game.Player2Token,
                 Board = board,
-                Turn = game.Turn.ToString()
+                Turn = game.Turn
             };
 
             return jsonGame;
@@ -186,7 +187,6 @@ namespace ReversiRestApi.Controllers
         public string PlayerToken { get; set; }
         public int Row { get; set; }
         public int Column { get; set; }
-        public bool Pass { get; set; }
     }
 
     public class PassGame
@@ -203,6 +203,6 @@ namespace ReversiRestApi.Controllers
         public string Player1Token { get; set; }
         public string Player2Token { get; set; }
         public string Board { get; set; }
-        public string Turn { get; set; }
+        public Color Turn { get; set; }
     }
 }

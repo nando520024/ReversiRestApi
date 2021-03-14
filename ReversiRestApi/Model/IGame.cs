@@ -35,8 +35,6 @@ namespace ReversiRestApi.Model
         bool DoMove(int row, int column);
     }
 
-    public enum Color { None, White, Black };
-
 }
 
 
