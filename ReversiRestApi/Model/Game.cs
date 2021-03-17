@@ -16,6 +16,8 @@ namespace ReversiRestApi.Model
         public Color[,] Board { get; set; }
         public Color Turn { get; set; }
 
+        public string Winner { get; set; }
+
         private List<Direction> directions;
         private int row2, column2;
         private Color enemy;

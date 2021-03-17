@@ -21,6 +21,7 @@ namespace ReversiRestApi.Model
         Color[,] Board { get; set; }
 
         Color Turn { get; set; }
+        public string Winner { get; set; }
 
         bool Pass();
 

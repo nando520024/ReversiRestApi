@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ReversiRestApi.Controllers
 {
-    [Route("api")]
+    [Route("api/game")]
     [ApiController]
     public class GameController : ControllerBase
     {
@@ -21,131 +21,144 @@ namespace ReversiRestApi.Controllers
         }
 
         // GET api/game
-        [HttpGet("game")]
+        [HttpGet]
         public ActionResult<IEnumerable<string>> GetGameDescriptionsFromGamesWithWaitingPlayer()
         {
             // Get games that have no Player2Token
-            var games = iRepository.GetGames().FindAll(x => x.Player2Token == null || x.Player2Token == "");
-            
-            if (games.Count != 0)
+            var games = iRepository.GetGames().FindAll(x => x.Player2Token == null || x.Player2Token == "").Select(x => x.Description);
+
+            if (games != null)
             {
-                List<string> descriptions = new List<string>();
-
-                // Add descriptions to List<string>
-                foreach (Game game in games)
-                {
-                    descriptions.Add(game.Description);
-                }
-
-                return Ok(descriptions);
+                return new ObjectResult(games);
             }
 
             return NotFound();
+
         }
 
-        // GET api/game/4
-        [HttpGet("game/{token}")]
+        // GET api/game/{token}
+        [HttpGet("{token}")]
         public ActionResult<JsonGame> GetGameByToken(string token)
         {
             var result = iRepository.GetGame(token);
 
             if (result != null)
             {
-                return Ok(ConvertGameToJsonGame(result));
-            } 
-            else
-            {
-                return NotFound();
+                return new ObjectResult(ConvertGameToJsonGame(result));
             }
+
+            return NotFound();
         }
 
-        // GET api/gameplayer/4
-        [HttpGet("gameplayer/{playertoken}")]
+        // GET api/game/player/{playertoken}
+        [HttpGet("player/{playertoken}")]
         public ActionResult<JsonGame> GetGameByPlayerToken(string playerToken)
         {
-            var result = iRepository.GetGames().FirstOrDefault(x => x.Player1Token == playerToken || x.Player2Token == playerToken);
-            if (result != null)
+            if (!string.IsNullOrWhiteSpace(playerToken))
             {
-                return Ok(ConvertGameToJsonGame(result));
-            }
-            else
-            {
+                var result = iRepository.GetGames().FirstOrDefault(x => x.Player1Token == playerToken || x.Player2Token == playerToken);
+
+                if (result != null)
+                {
+                    return new ObjectResult(ConvertGameToJsonGame(result));
+                }
+
                 return NotFound();
             }
+
+            return NotFound();
         }
 
-        // GET api/game/turn/4
-        [HttpGet("game/turn/{token}")]
-        public ActionResult<string> GetTurnByToken(string token)
+        // GET api/game/turn/{token}
+        [HttpGet("turn/{token}")]
+        public ActionResult<Color> GetTurnByToken(string token)
         {
-            var result = iRepository.GetGame(token);
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                var result = iRepository.GetGame(token);
 
-            if (result != null)
-            {
-                return Ok(result.Turn.ToString());
-            }
-            else
-            {
+                if (result != null)
+                {
+                    return new ObjectResult(result.Turn);
+                }
+
                 return NotFound();
             }
+
+            return NotFound();
+            
         }
 
         // PUT api/game/move
-        [HttpPut("game/move")]
-        public IActionResult PutMove([FromBody] TokenGame tokenGame)
+        [HttpPut("move")]
+        public ActionResult<bool> PutMove([FromBody] TokenGame tokenGame)
         {
             var result = iRepository.GetGame(tokenGame.Token);
 
-            if (result != null && (result.Player1Token.Equals(tokenGame.PlayerToken) || result.Player2Token.Equals(tokenGame.PlayerToken)))
+            if (result != null)
             {
-                if (result.DoMove(tokenGame.Row, tokenGame.Column))
+                // Check it the given playertoken has its turn 
+                if ((result.Turn == Color.Black && result.Player1Token.Equals(tokenGame.PlayerToken)) || (result.Turn == Color.Black && result.Player1Token.Equals(tokenGame.PlayerToken)))
                 {
-                    iRepository.UpdateGame(result);
-                    return Ok(true);
-                }
+                    // Check if Pass is true and if pass is possible
+                    if (tokenGame.Pass)
+                    {
+                        if (result.Pass())
+                        {
+                            iRepository.UpdateGame(result);
+                            return Ok(true);
+                        }
 
+                        return Ok(false);
+                    }
+                    // Check if move is possible if yes then return true else return false
+                    else if (result.DoMove(tokenGame.Row, tokenGame.Column))
+                    {
+                        iRepository.UpdateGame(result);
+                        return Ok(true);
+                    }
+                    return Ok(false);
+                }
                 return Ok(false);
             }
             return NotFound();
         }
 
-        // PUT api/game/move/pass
-        [HttpPut("game/move/pass")]
-        public IActionResult PutMove([FromBody] PassGame passGame)
+        // PUT api/game/surrender 
+        [HttpPut("surrender")]
+        public IActionResult Surrender([FromBody] SurrenderGame surrenderGame)
         {
-            var result = iRepository.GetGame(passGame.Token);
+            var result = iRepository.GetGame(surrenderGame.Token);
 
             if (result != null)
             {
-                if (result.Player1Token.Equals(passGame.PlayerToken) || result.Player2Token.Equals(passGame.PlayerToken))
+                if (result.Player1Token.Equals(surrenderGame.PlayerToken))
                 {
-                    if (result.Pass())
-                    {
-                        iRepository.UpdateGame(result);
-                        return Ok(true);
-                    }
-
-                    return Ok(false);
+                    result.Winner = result.Player2Token;
                 }
-                return NotFound();
+                else
+                {
+                    result.Winner = result.Player1Token;
+                }
+                return Ok(result.Winner);
             }
             return NotFound();
         }
 
-        // TODO PUT api/game/surrender 
-
         // POST api/game
-        [HttpPost("game")]
+        [HttpPost]
         public IActionResult PostSpel([FromBody] PostGame postGame)
         {
-            Game game = new Game();
-            game.Player1Token = postGame.Player1Token;
-            game.Description = postGame.Description;
-            game.Token = Guid.NewGuid().ToString();
+            Game game = new Game
+            {
+                Player1Token = postGame.Player1Token,
+                Description = postGame.Description,
+                Token = Guid.NewGuid().ToString()
+            };
 
             iRepository.AddGame(game);
 
-            return Ok();
+            return Ok(ConvertGameToJsonGame(game));
         }
 
         private JsonGame ConvertGameToJsonGame(Game game)
@@ -181,18 +194,19 @@ namespace ReversiRestApi.Controllers
         public string Description { get; set; }
     }
 
+    public class SurrenderGame
+    {
+        public string PlayerToken { get; set; }
+        public string Token { get; set; }
+    }
+
     public class TokenGame
     {
         public string Token { get; set; }
         public string PlayerToken { get; set; }
         public int Row { get; set; }
         public int Column { get; set; }
-    }
-
-    public class PassGame
-    {
-        public string Token { get; set; }
-        public string PlayerToken { get; set; }
+        public bool Pass { get; set; }
     }
 
     public class JsonGame

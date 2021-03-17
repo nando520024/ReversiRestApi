@@ -25,7 +25,14 @@ namespace ReversiRestApi.Model
 
         public Game GetGame(string token)
         {
-            return ConvertDbGameToGame(dbGameContext.DbGames.Single(dbGame => dbGame.Token.Equals(token)));
+            try
+            {
+                return ConvertDbGameToGame(dbGameContext.DbGames.Single(dbGame => dbGame.Token.Equals(token)));
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public List<Game> GetGames()
