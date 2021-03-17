@@ -25,7 +25,7 @@ namespace ReversiRestApi.Controllers
         public ActionResult<IEnumerable<string>> GetGameDescriptionsFromGamesWithWaitingPlayer()
         {
             // Get games that have no Player2Token
-            var games = iRepository.GetGames().FindAll(x => x.Player2Token == null || x.Player2Token == "").Select(x => x.Description);
+            var games = iRepository.GetGames().FindAll(x => x.Player2Token == null || x.Player2Token == "").Select(x => new { x.Description, x.Token });
 
             if (games != null)
             {
@@ -158,7 +158,7 @@ namespace ReversiRestApi.Controllers
 
             iRepository.AddGame(game);
 
-            return Ok(ConvertGameToJsonGame(game));
+            return Ok(game.Token);
         }
 
         private JsonGame ConvertGameToJsonGame(Game game)
