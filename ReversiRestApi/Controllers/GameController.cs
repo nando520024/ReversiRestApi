@@ -169,9 +169,9 @@ namespace ReversiRestApi.Controllers
 
             if (result != null)
             {
-                result.Player2Token = tokenGame.Token;
+                result.Player2Token = tokenGame.PlayerToken;
                 iRepository.UpdateGame(result);
-                return Ok();
+                return Ok(result.Token);
             }
 
             return NotFound();
