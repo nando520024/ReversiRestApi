@@ -23,6 +23,9 @@ var Game = function (url) {
   var privateInit = function privateInit(callbackFunction) {
     // console.log(configMap.apiUrl);
     console.log("Init van Game");
+    Game.Model.init();
+    Game.Reversi.init();
+    Game.Data.init("development");
     setInterval(_getCurrentGameState, 2000);
     callbackFunction();
     return true;
@@ -35,11 +38,33 @@ var Game = function (url) {
 }('/api/url');
 
 $(document).ready(function () {
-  console.log("ready!");
-  $("#btn-ok").on("click", function () {
-    alert("The button was clicked.");
-    var feedbackWidget = new FeedbackWidget('feedback-danger');
-    feedbackWidget.show("Pas op voor loslopende bitsss.", "success");
+  console.log('ready!'); // Add click event
+
+  $('#btn-ok').on('click', function () {
+    alert('The ok button was clicked.');
+    var feedbackWidget = new FeedbackWidget('#feedback');
+    feedbackWidget.show('Mikeeeeeeeeeeeeeeee wil deelnemen aan jouw spel. Geef akkoord.', 'success');
+  });
+  $('#btn-no').on('click', function () {
+    alert('The no button was clicked.');
+    var feedbackWidget = new FeedbackWidget('#feedback');
+    feedbackWidget.hide();
+  });
+  $('#btn-yes').on('click', function () {
+    alert('The yes button was clicked.');
+    var feedbackWidget = new FeedbackWidget('#feedback');
+    feedbackWidget.hide();
+  });
+  $('#btn-exit').on('click', function () {
+    alert('The exit button was clicked.');
+    var feedbackWidget = new FeedbackWidget('#feedback');
+    feedbackWidget.hide();
+  }); // btn-yes bibber effect toggles the class bibber every 2 seconds
+
+  $(document).ready(function () {
+    setInterval(function () {
+      $("#btn-yes").toggleClass('shake');
+    }, 2000);
   });
 });
 
@@ -58,64 +83,77 @@ var FeedbackWidget = /*#__PURE__*/function () {
   }, {
     key: "show",
     value: function show(message, type) {
-      var x = document.getElementById(this.elementId);
-      x.style.display = "block"; // Show the feedbackwidget
+      // Add fade in and remove fade out
+      $('#feedback').removeClass('fade-out');
+      $('#feedback').addClass('fade-in'); // Show the feedbackwidget
 
-      var elementId = $("#" + this.elementId);
-      $(elementId).text(message); // Set the text of the feedback
+      var x = document.querySelector(this.elementId);
+      x.style.display = 'block'; // Set the text of the feedback
 
-      if (type === "success") {
-        // Check if the type is success, then alert-success
-        $(elementId).removeClass('alert-danger');
-        $(elementId).addClass('alert-success');
-      } else if (type === "danger") {
-        // Check if the type is danger, then alert-danger
-        $(elementId).removeClass('alert-success');
-        $(elementId).addClass('alert-danger');
-      }
+      $('#feedback__text').text(message); // Check if type is success, then alert-success, if type is danger, then alert-danger
+
+      if (type === 'success') {
+        $(this.elementId).removeClass('alert-danger');
+        $(this.elementId).addClass('alert-success');
+      } else if (type === 'danger') {
+        $(this.elementId).removeClass('alert-success');
+        $(this.elementId).addClass('alert-danger');
+      } // Call method log and give an object with message and type
+
 
       this.log({
         message: message,
         type: type
-      }); // Call method log and give an object with message and type
+      });
     }
   }, {
     key: "hide",
     value: function hide() {
-      var x = document.getElementById(this.elementId);
-      x.style.display = "none"; // Hide the feedbackwidget
+      // add fade out and remove fade in
+      $('#feedback').removeClass('fade-in');
+      $('#feedback').addClass('fade-out'); // Hide the feedbackwidget
+
+      var x = document.querySelector(this.elementId); // wait 5 sec so the animation can end
+
+      setTimeout(function () {
+        x.style.display = 'none';
+      }, 2500);
     }
   }, {
     key: "log",
     value: function log(message) {
+      // Get messages from localStorage or make a new JSON object
       var localStorageMessages = JSON.parse(localStorage.getItem('feedback_widget')) || {
-        "messages": []
-      }; // Get messages from localStorage or make a new JSON object
+        messages: []
+      }; // Add the message at index 0
 
-      localStorageMessages.messages.unshift(message); // Add the message at index 0
+      localStorageMessages.messages.unshift(message); // Check if the messages is bigger then 10
 
       if (localStorageMessages.messages.length > 10) {
-        // Check if the messages is bigger then 10
-        localStorageMessages.messages.pop(); // Remove the last message from the array
-      }
+        // Remove the last message from the array
+        localStorageMessages.messages.pop();
+      } // Set the localstorage with key 'feedback_widget' and the new message
 
-      localStorage.setItem('feedback_widget', JSON.stringify(localStorageMessages)); // Set the localstorage with key 'feedback_widget' and the new message
+
+      localStorage.setItem('feedback_widget', JSON.stringify(localStorageMessages));
     }
   }, {
     key: "removeLog",
     value: function removeLog() {
-      localStorage.removeItem('feedback_widget'); // Clear the log with key 'feedback_widget'
+      // Clear the log with key 'feedback_widget'
+      localStorage.removeItem('feedback_widget');
     }
   }, {
     key: "history",
     value: function history() {
+      // Get messages from localStorage or make a new JSON object
       var localStorageMessages = JSON.parse(localStorage.getItem('feedback_widget')) || {
-        "messages": []
-      }; // Get messages from localStorage or make a new JSON object
+        messages: []
+      }; // Show the messages in the console
 
       localStorageMessages.messages.forEach(function (element) {
-        return console.log(element.type + " - " + element.message + " ");
-      }); // Show the messages in the console
+        return console.log(element.type + ' - ' + element.message + ' ');
+      });
     }
   }]);
 

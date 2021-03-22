@@ -91,17 +91,17 @@ namespace ReversiRestApi.Controllers
 
         // PUT api/game/move
         [HttpPut("move")]
-        public ActionResult<bool> PutMove([FromBody] TokenGame tokenGame)
+        public ActionResult<bool> PutMove([FromBody] MoveGame moveGame)
         {
-            var result = iRepository.GetGame(tokenGame.Token);
+            var result = iRepository.GetGame(moveGame.Token);
 
             if (result != null)
             {
                 // Check it the given playertoken has its turn 
-                if ((result.Turn == Color.Black && result.Player1Token.Equals(tokenGame.PlayerToken)) || (result.Turn == Color.Black && result.Player1Token.Equals(tokenGame.PlayerToken)))
+                if ((result.Turn == Color.Black && result.Player1Token.Equals(moveGame.PlayerToken)) || (result.Turn == Color.Black && result.Player1Token.Equals(moveGame.PlayerToken)))
                 {
                     // Check if Pass is true and if pass is possible
-                    if (tokenGame.Pass)
+                    if (moveGame.Pass)
                     {
                         if (result.Pass())
                         {
@@ -112,7 +112,7 @@ namespace ReversiRestApi.Controllers
                         return Ok(false);
                     }
                     // Check if move is possible if yes then return true else return false
-                    else if (result.DoMove(tokenGame.Row, tokenGame.Column))
+                    else if (result.DoMove(moveGame.Row, moveGame.Column))
                     {
                         iRepository.UpdateGame(result);
                         return Ok(true);
@@ -126,13 +126,13 @@ namespace ReversiRestApi.Controllers
 
         // PUT api/game/surrender 
         [HttpPut("surrender")]
-        public IActionResult Surrender([FromBody] SurrenderGame surrenderGame)
+        public IActionResult Surrender([FromBody] TokenGame tokenGame)
         {
-            var result = iRepository.GetGame(surrenderGame.Token);
+            var result = iRepository.GetGame(tokenGame.Token);
 
             if (result != null)
             {
-                if (result.Player1Token.Equals(surrenderGame.PlayerToken))
+                if (result.Player1Token.Equals(tokenGame.PlayerToken))
                 {
                     result.Winner = result.Player2Token;
                 }
@@ -147,7 +147,7 @@ namespace ReversiRestApi.Controllers
 
         // POST api/game
         [HttpPost]
-        public IActionResult PostSpel([FromBody] PostGame postGame)
+        public IActionResult PostGame([FromBody] PostGame postGame)
         {
             Game game = new Game
             {
@@ -159,6 +159,22 @@ namespace ReversiRestApi.Controllers
             iRepository.AddGame(game);
 
             return Ok(game.Token);
+        }
+
+        // PUT api/game
+        [HttpPut]
+        public IActionResult JoinGame([FromBody] TokenGame tokenGame)
+        {
+            var result = iRepository.GetGame(tokenGame.Token);
+
+            if (result != null)
+            {
+                result.Player2Token = tokenGame.Token;
+                iRepository.UpdateGame(result);
+                return Ok();
+            }
+
+            return NotFound();
         }
 
         private JsonGame ConvertGameToJsonGame(Game game)
@@ -194,13 +210,13 @@ namespace ReversiRestApi.Controllers
         public string Description { get; set; }
     }
 
-    public class SurrenderGame
+    public class TokenGame
     {
         public string PlayerToken { get; set; }
         public string Token { get; set; }
     }
 
-    public class TokenGame
+    public class MoveGame
     {
         public string Token { get; set; }
         public string PlayerToken { get; set; }
