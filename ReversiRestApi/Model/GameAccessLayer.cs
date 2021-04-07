@@ -35,6 +35,12 @@ namespace ReversiRestApi.Model
             }
         }
 
+        public void DeleteGame(string token)
+        {
+            dbGameContext.Remove(dbGameContext.DbGames.Single(dbGame => dbGame.Token.Equals(token)));
+            dbGameContext.SaveChanges();
+        }
+
         public List<Game> GetGames()
         {
             IEnumerable<DbGame> dbGames = dbGameContext.DbGames;

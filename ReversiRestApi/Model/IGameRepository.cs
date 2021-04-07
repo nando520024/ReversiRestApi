@@ -14,5 +14,7 @@ namespace ReversiRestApi.Model
         Game GetGame(string token);
 
         void UpdateGame(Game game);
+
+        void DeleteGame(string token);
     }
 }

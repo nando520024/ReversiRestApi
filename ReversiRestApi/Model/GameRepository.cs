@@ -46,5 +46,10 @@ namespace ReversiRestApi.Model
         {
             throw new NotImplementedException();
         }
+
+        public void DeleteGame(string token)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

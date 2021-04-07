@@ -177,6 +177,20 @@ namespace ReversiRestApi.Controllers
             return NotFound();
         }
 
+        // DELETE api/game/{token}
+        [HttpDelete("{token}")]
+        public ActionResult<bool> Delete(string token)
+        {
+            var result = iRepository.GetGame(token);
+            if (result != null)
+            {
+                iRepository.DeleteGame(token);
+                return Ok(true);
+            }
+
+            return NotFound(false);
+        }
+
         private JsonGame ConvertGameToJsonGame(Game game)
         {
             string board = "";
