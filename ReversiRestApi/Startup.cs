@@ -28,6 +28,18 @@ namespace ReversiRestApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                    builder =>
+                    {
+                        builder.WithOrigins("https://localhost:63342",
+                            "http://localhost:63342",
+                            "https://reversispeedrun.hbo-ict.org")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                    });
+            });
             services.AddControllers();
             services.AddScoped<IGameRepository, GameAccessLayer>();
             services.AddDbContext<Data.DbGameContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ReversiDbRestApi")));
@@ -44,6 +56,8 @@ namespace ReversiRestApi
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthorization();
 
