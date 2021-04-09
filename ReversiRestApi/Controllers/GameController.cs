@@ -98,7 +98,7 @@ namespace ReversiRestApi.Controllers
             if (result != null)
             {
                 // Check it the given playertoken has its turn 
-                if ((result.Turn == Color.Black && result.Player1Token.Equals(moveGame.PlayerToken)) || (result.Turn == Color.Black && result.Player1Token.Equals(moveGame.PlayerToken)))
+                if ((result.Turn == Color.Black && result.Player1Token.Equals(moveGame.PlayerToken)) || (result.Turn == Color.White && result.Player2Token.Equals(moveGame.PlayerToken)))
                 {
                     // Check if Pass is true and if pass is possible
                     if (moveGame.Pass)
