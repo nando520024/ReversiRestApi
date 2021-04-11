@@ -26,7 +26,8 @@ namespace ReversiRestApi.Model
         {
             Board = new Color[8, 8];
             Array.Clear(Board, 0, Board.Length);
-            Turn = Color.Black;
+            int turn = new Random().Next(1, 3);
+            Turn = (Color)turn;
             Board[3, 3] = Board[4, 4] = (Color)1;
             Board[4, 3] = Board[3, 4] = (Color)2;
         }
