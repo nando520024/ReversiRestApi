@@ -100,19 +100,31 @@ namespace ReversiRestApi.Controllers
                 // Check it the given playertoken has its turn 
                 if ((result.Turn == Color.Black && result.Player1Token.Equals(moveGame.PlayerToken)) || (result.Turn == Color.White && result.Player2Token.Equals(moveGame.PlayerToken)))
                 {
-                    // Check if Pass is true and if pass is possible
-                    if (moveGame.Pass)
-                    {
-                        if (result.Pass())
-                        {
-                            iRepository.UpdateGame(result);
-                            return Ok(true);
-                        }
-
-                        return Ok(false);
-                    }
                     // Check if move is possible if yes then return true else return false
-                    else if (result.DoMove(moveGame.Row, moveGame.Column))
+                    if (result.DoMove(moveGame.Row, moveGame.Column))
+                    {
+                        iRepository.UpdateGame(result);
+                        return Ok(true);
+                    }
+                    return Ok(false);
+                }
+                return Ok(false);
+            }
+            return NotFound();
+        }
+
+        // PUT api/game/move/pass
+        [HttpPut("move/pass")]
+        public ActionResult<bool> PutPass([FromBody] TokenGame tokenGame)
+        {
+            var result = iRepository.GetGame(tokenGame.Token);
+
+            if (result != null)
+            {
+                // Check it the given playertoken has its turn 
+                if ((result.Turn == Color.Black && result.Player1Token.Equals(tokenGame.PlayerToken)) || (result.Turn == Color.White && result.Player2Token.Equals(tokenGame.PlayerToken)))
+                {
+                    if (result.Pass())
                     {
                         iRepository.UpdateGame(result);
                         return Ok(true);
@@ -236,7 +248,6 @@ namespace ReversiRestApi.Controllers
         public string PlayerToken { get; set; }
         public int Row { get; set; }
         public int Column { get; set; }
-        public bool Pass { get; set; }
     }
 
     public class JsonGame
