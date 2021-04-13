@@ -15,5 +15,6 @@ namespace ReversiRestApi.Data
         public string Player2Token { get; set; }
         public string Board { get; set; }
         public Color Turn { get; set; }
+        public string Winner { get; set; }
     }
 }

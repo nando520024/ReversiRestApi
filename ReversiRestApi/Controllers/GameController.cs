@@ -147,12 +147,14 @@ namespace ReversiRestApi.Controllers
                 if (result.Player1Token.Equals(tokenGame.PlayerToken))
                 {
                     result.Winner = result.Player2Token;
+                    result.Turn = Color.None;
                 }
                 else
                 {
                     result.Winner = result.Player1Token;
+                    result.Turn = Color.None;
                 }
-                return Ok(result.Winner);
+                return Ok();
             }
             return NotFound();
         }
