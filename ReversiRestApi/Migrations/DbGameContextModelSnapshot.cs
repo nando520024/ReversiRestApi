@@ -43,6 +43,9 @@ namespace ReversiRestApi.Migrations
                     b.Property<int>("Turn")
                         .HasColumnType("int");
 
+                    b.Property<string>("Winner")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("ID");
 
                     b.ToTable("DbGames");

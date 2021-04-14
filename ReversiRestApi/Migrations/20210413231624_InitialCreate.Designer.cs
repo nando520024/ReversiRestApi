@@ -9,7 +9,7 @@ using ReversiRestApi.Data;
 namespace ReversiRestApi.Migrations
 {
     [DbContext(typeof(DbGameContext))]
-    [Migration("20210314002354_InitialCreate")]
+    [Migration("20210413231624_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -44,6 +44,9 @@ namespace ReversiRestApi.Migrations
 
                     b.Property<int>("Turn")
                         .HasColumnType("int");
+
+                    b.Property<string>("Winner")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
 

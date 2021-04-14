@@ -89,7 +89,8 @@ namespace ReversiRestApi.Model
                 Player1Token = dbGame.Player1Token,
                 Player2Token = dbGame.Player2Token,
                 Board = board,
-                Turn = dbGame.Turn
+                Turn = dbGame.Turn,
+                Winner = dbGame.Winner
             };
         }
 
@@ -114,7 +115,8 @@ namespace ReversiRestApi.Model
                 Player1Token = game.Player1Token,
                 Player2Token = game.Player2Token,
                 Board = board,
-                Turn = game.Turn
+                Turn = game.Turn,
+                Winner = game.Winner
             };
 
             return dbGame;

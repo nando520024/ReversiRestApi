@@ -95,7 +95,7 @@ namespace ReversiRestApi.Controllers
         {
             var result = iRepository.GetGame(moveGame.Token);
 
-            if (result != null)
+            if (result != null && (result.Player1Token.Equals(moveGame.PlayerToken) || result.Player2Token.Equals(moveGame.PlayerToken)))
             {
                 // Check it the given playertoken has its turn 
                 if ((result.Turn == Color.Black && result.Player1Token.Equals(moveGame.PlayerToken)) || (result.Turn == Color.White && result.Player2Token.Equals(moveGame.PlayerToken)))
@@ -119,7 +119,7 @@ namespace ReversiRestApi.Controllers
         {
             var result = iRepository.GetGame(tokenGame.Token);
 
-            if (result != null)
+            if (result != null && (result.Player1Token.Equals(tokenGame.PlayerToken) || result.Player2Token.Equals(tokenGame.PlayerToken)))
             {
                 // Check it the given playertoken has its turn 
                 if ((result.Turn == Color.Black && result.Player1Token.Equals(tokenGame.PlayerToken)) || (result.Turn == Color.White && result.Player2Token.Equals(tokenGame.PlayerToken)))
@@ -138,23 +138,25 @@ namespace ReversiRestApi.Controllers
 
         // PUT api/game/surrender 
         [HttpPut("surrender")]
-        public IActionResult Surrender([FromBody] TokenGame tokenGame)
+        public ActionResult<bool> Surrender([FromBody] TokenGame tokenGame)
         {
             var result = iRepository.GetGame(tokenGame.Token);
 
-            if (result != null)
+            if (result != null && (result.Player1Token.Equals(tokenGame.PlayerToken) || result.Player2Token.Equals(tokenGame.PlayerToken)))
             {
                 if (result.Player1Token.Equals(tokenGame.PlayerToken))
                 {
                     result.Winner = result.Player2Token;
                     result.Turn = Color.None;
+                    iRepository.UpdateGame(result);
                 }
                 else
                 {
                     result.Winner = result.Player1Token;
                     result.Turn = Color.None;
+                    iRepository.UpdateGame(result);
                 }
-                return Ok();
+                return Ok(true);
             }
             return NotFound();
         }
@@ -225,7 +227,8 @@ namespace ReversiRestApi.Controllers
                 Player1Token = game.Player1Token,
                 Player2Token = game.Player2Token,
                 Board = board,
-                Turn = game.Turn
+                Turn = game.Turn,
+                Winner = game.Winner
             };
 
             return jsonGame;
@@ -261,5 +264,6 @@ namespace ReversiRestApi.Controllers
         public string Player2Token { get; set; }
         public string Board { get; set; }
         public Color Turn { get; set; }
+        public string Winner { get; set; }
     }
 }

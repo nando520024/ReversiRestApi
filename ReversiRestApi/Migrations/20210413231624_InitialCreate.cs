@@ -17,7 +17,8 @@ namespace ReversiRestApi.Migrations
                     Player1Token = table.Column<string>(nullable: true),
                     Player2Token = table.Column<string>(nullable: true),
                     Board = table.Column<string>(nullable: true),
-                    Turn = table.Column<int>(nullable: false)
+                    Turn = table.Column<int>(nullable: false),
+                    Winner = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
