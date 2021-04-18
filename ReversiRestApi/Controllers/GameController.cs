@@ -32,7 +32,7 @@ namespace ReversiRestApi.Controllers
                 return new ObjectResult(games);
             }
 
-            return NotFound();
+            return null;
 
         }
 
@@ -56,7 +56,7 @@ namespace ReversiRestApi.Controllers
         {
             if (!string.IsNullOrWhiteSpace(playerToken))
             {
-                var result = iRepository.GetGames().FirstOrDefault(x => x.Player1Token == playerToken || x.Player2Token == playerToken);
+                var result = iRepository.GetGames().FirstOrDefault(x => playerToken.Equals(x.Player1Token) || playerToken.Equals(x.Player2Token));
 
                 if (result != null)
                 {
@@ -146,13 +146,13 @@ namespace ReversiRestApi.Controllers
             {
                 if (result.Player1Token.Equals(tokenGame.PlayerToken))
                 {
-                    result.Winner = result.Player2Token;
+                    result.Winner = "White";
                     result.Turn = Color.None;
                     iRepository.UpdateGame(result);
                 }
                 else
                 {
-                    result.Winner = result.Player1Token;
+                    result.Winner = "Black";
                     result.Turn = Color.None;
                     iRepository.UpdateGame(result);
                 }
@@ -201,10 +201,35 @@ namespace ReversiRestApi.Controllers
             if (result != null)
             {
                 iRepository.DeleteGame(token);
-                return Ok(true);
+                return Ok();
             }
 
-            return NotFound(false);
+            return NotFound();
+        }
+
+        // POST api/game/player/remove
+        [HttpPost("player/remove")]
+        public IActionResult RemovePlayer([FromBody] TokenGame tokenGame)
+        {
+            var result = iRepository.GetGame(tokenGame.Token);
+
+            if (result != null)
+            {
+                if (tokenGame.PlayerToken.Equals(result.Player1Token))
+                {
+                    result.Player1Token = null;
+                    iRepository.UpdateGame(result);
+                    return Ok();
+                } 
+                else if (tokenGame.PlayerToken.Equals(result.Player2Token))
+                {
+                    result.Player2Token = null;
+                    iRepository.UpdateGame(result);
+                    return Ok();
+                }
+            }
+
+            return NotFound();
         }
 
         private JsonGame ConvertGameToJsonGame(Game game)

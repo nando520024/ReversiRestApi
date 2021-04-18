@@ -20,6 +20,7 @@ namespace ReversiRestApi.Model
         private List<Direction> directions;
         private int row2, column2;
         private Color enemy;
+        private Color current;
 
         public Game()
         {
@@ -33,9 +34,17 @@ namespace ReversiRestApi.Model
 
         public bool Finished()
         {
-            if (Pass() && Pass())
+            if (Pass())
             {
-                return true;
+                if (Pass())
+                {
+                    return true;
+                } 
+                else 
+                {
+                    Turn = current;
+                }
+                
             }
 
             return false;
@@ -151,6 +160,11 @@ namespace ReversiRestApi.Model
             }
 
             Turn = enemy;
+            if (Finished())
+            {
+                Winner = PredominantColor().ToString();
+                Turn = Color.None;
+            }
             return true;
         }
 
@@ -205,7 +219,7 @@ namespace ReversiRestApi.Model
                     }
                 }
             }
-
+            current = Turn;
             Turn = enemy;
             return true;
         }
