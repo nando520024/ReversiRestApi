@@ -195,7 +195,7 @@ namespace ReversiRestApi.Controllers
 
         // DELETE api/game/{token}
         [HttpDelete("{token}")]
-        public ActionResult<bool> Delete(string token)
+        public IActionResult Delete(string token)
         {
             var result = iRepository.GetGame(token);
             if (result != null)
