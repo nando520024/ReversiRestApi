@@ -33,10 +33,9 @@ namespace ReversiRestApi
                 options.AddDefaultPolicy(
                     builder =>
                     {
-                        builder.WithOrigins("https://localhost:63342",
-                            "http://localhost:63342",
-                            "https://localhost:44349",
-                            "http://localhost:44349",
+                        builder.WithOrigins(
+                            "https://localhost:5001",
+                            "http://localhost:5000",
                             "https://reversispeedrun.hbo-ict.org")
                         .AllowAnyHeader()
                         .AllowAnyMethod();
