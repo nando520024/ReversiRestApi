@@ -34,8 +34,7 @@ namespace ReversiRestApi
                     builder =>
                     {
                         builder.WithOrigins(
-                            "https://localhost:5001",
-                            "http://localhost:5000",
+                            "https://localhost",
                             "https://reversispeedrun.hbo-ict.org")
                         .AllowAnyHeader()
                         .AllowAnyMethod();
